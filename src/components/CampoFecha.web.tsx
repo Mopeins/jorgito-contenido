@@ -22,7 +22,7 @@ export function CampoFecha({ etiqueta, valor, onCambio }: { etiqueta?: string; v
           color: colors.tinta,
           fontFamily: fonts.texto,
           fontSize: 14,
-          colorScheme: 'dark',
+          colorScheme: 'light',
           outline: 'none',
         },
       })}

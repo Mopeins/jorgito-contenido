@@ -5,8 +5,8 @@
     "version": "1.0.0",
     "orientation": "default",
     "scheme": "jorgitocontenido",
-    "userInterfaceStyle": "dark",
-    "backgroundColor": "#0D0D0D",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#FFFFFF",
     "icon": "./assets/images/icon.png",
     "owner": "mopeinss-team",
     "web": {
@@ -14,12 +14,12 @@
       "favicon": "./assets/images/favicon.png",
       "name": "Jorgito Parrillero · Central de Contenido",
       "shortName": "Contenido JP",
-      "themeColor": "#0D0D0D",
-      "backgroundColor": "#0D0D0D"
+      "themeColor": "#FFFFFF",
+      "backgroundColor": "#FFFFFF"
     },
     "plugins": [
       "expo-router",
-      ["expo-splash-screen", { "backgroundColor": "#0D0D0D" }]
+      ["expo-splash-screen", { "backgroundColor": "#FFFFFF" }]
     ],
     "experiments": {
       "typedRoutes": false,

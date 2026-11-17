@@ -1,33 +1,33 @@
 export const colors = {
-  fondo: '#0D0D0D',
-  s1: '#161616',
-  s2: '#1F1F1F',
-  s3: '#2A2A2A',
-  linea: '#363636',
-  tinta: '#FFFFFF',
-  tenue: '#A3A3A3',
-  tenue2: '#767676',
-  brasa: '#E32626',
-  brasa2: '#FF5A5A',
+  fondo: '#FFFFFF',
+  s1: '#F7F7F7',
+  s2: '#EFEFEF',
+  s3: '#E6E6E6',
+  linea: '#DEDEDE',
+  tinta: '#111111',
+  tenue: '#5E5E5E',
+  tenue2: '#8C8C8C',
+  brasa: '#D71920',
+  brasa2: '#B3141A',
   sobreBrasa: '#FFFFFF',
-  rojo: '#FF6B6B',
-  aviso: '#F2B544',
-  avisoFondo: '#3A2E14',
+  rojo: '#B3141A',
+  aviso: '#9A6700',
+  avisoFondo: '#FFF3D1',
 } as const;
 
 export const pilarColor = {
-  recetas: '#F2B544',
-  trucos: '#FF7A3D',
-  tendencias: '#B98CFF',
-  versus: '#4FC3F7',
-  efemerides: '#7BD88F',
+  recetas: '#B45309',
+  trucos: '#0F766E',
+  tendencias: '#7C3AED',
+  versus: '#1D4ED8',
+  efemerides: '#15803D',
 } as const;
 
 export const plataformaColor: Record<string, string> = {
-  Instagram: '#E32626',
-  Facebook: '#4FC3F7',
-  TikTok: '#B98CFF',
-  YouTube: '#F2B544',
+  Instagram: '#C13584',
+  Facebook: '#1877F2',
+  TikTok: '#111111',
+  YouTube: '#D71920',
 };
 
 export const fonts = {

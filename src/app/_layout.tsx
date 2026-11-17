@@ -42,7 +42,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <SesionProvider>
-        <StatusBar style="light" />
+        <StatusBar style="dark" />
         <Rutas />
       </SesionProvider>
     </SafeAreaProvider>
