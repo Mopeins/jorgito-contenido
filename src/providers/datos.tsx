@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { mensajeError, supabase } from '@/lib/supabase';
-import type { FechaPropia, Hallazgo, Idea, Informe, Metrica, Miembro, Paso, Propuesta, Referente, Solicitud, Hook } from '@/lib/tipos';
+import type { FechaPropia, Hallazgo, Idea, Informe, Metrica, Miembro, Paso, Propuesta, Referente, Solicitud, Hook, TopShort } from '@/lib/tipos';
 
 type Tablas = {
   ideas: Idea[];
@@ -15,6 +15,7 @@ type Tablas = {
   equipo: Miembro[];
   solicitudes: Solicitud[];
   hooks: Hook[];
+  shorts: TopShort[];
 };
 type Nombre = keyof Tablas;
 
@@ -30,8 +31,9 @@ const TABLA: Record<Nombre, { t: string; orden: [string, boolean] }> = {
   equipo: { t: 'equipo', orden: ['creado', true] },
   solicitudes: { t: 'solicitudes', orden: ['creado', false] },
   hooks: { t: 'hooks', orden: ['creado', false] },
+  shorts: { t: 'top_shorts', orden: ['posicion', true] },
 };
-const VACIO: Tablas = { ideas: [], pasos: [], propuestas: [], radar: [], referentes: [], metricas: [], fechas: [], informes: [], equipo: [], solicitudes: [], hooks: [] };
+const VACIO: Tablas = { ideas: [], pasos: [], propuestas: [], radar: [], referentes: [], metricas: [], fechas: [], informes: [], equipo: [], solicitudes: [], hooks: [], shorts: [] };
 
 type Ctx = Tablas & {
   listo: boolean;
@@ -82,6 +84,7 @@ export function DatosProvider({ children }: { children: ReactNode }) {
       ['solicitudes', 'solicitudes'],
       ['informes', 'informes'],
       ['hooks', 'hooks'],
+      ['top_shorts', 'shorts'],
     ];
     for (const [tabla, n] of mapa) {
       canal.on('postgres_changes', { event: '*', schema: 'public', table: tabla }, () => recargar(n));

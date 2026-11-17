@@ -118,3 +118,17 @@ export type Hook = {
   origen: string;
   creado: string;
 };
+
+export type TopShort = {
+  id: string;
+  referente: string;
+  posicion: number;
+  titulo: string;
+  vistas: number | null;
+  fecha: string | null;
+  link: string;
+  confirmado: boolean;
+  alcance: 'historico' | 'reciente';
+  fuente: string;
+  actualizado: string;
+};

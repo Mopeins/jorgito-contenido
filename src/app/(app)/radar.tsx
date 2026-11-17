@@ -11,8 +11,16 @@ import { usePedir } from '@/components/Cola';
 import { RadarHooks } from '@/components/Hooks';
 import { useDatos } from '@/providers/datos';
 
+const vistasCortas = (n: number | null) => {
+  if (n == null) return '?';
+  if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e8 ? 0 : 1).replace('.', ',').replace(/,0$/, '') + 'M';
+  if (n >= 1e3) return Math.round(n / 1e3) + 'K';
+  return String(n);
+};
+
 export default function Radar() {
-  const { radar, referentes, crear, editar, borrar, solicitudes, hooks } = useDatos();
+  const { radar, referentes, crear, editar, borrar, solicitudes, hooks, shorts } = useDatos();
+  const [abierto, setAbierto] = useState<string | null>(null);
   const pedir = usePedir();
   const [vista, setVista] = useState<'hallazgos' | 'hooks'>('hallazgos');
   const [f, setF] = useState<'nuevo' | 'usado' | 'descartado' | 'todos'>('nuevo');
@@ -157,17 +165,51 @@ export default function Radar() {
           </Card>
           <Card>
             <Titulo tam={18}>Referentes que vigila el radar</Titulo>
-            {referentes.map((r) => (
-              <Fila key={r.id} entre style={{ borderTopWidth: 1, borderTopColor: colors.linea, paddingTop: 8 }}>
-                <View>
-                  <Texto peso="bold">{r.nombre}</Texto>
-                  <Tenue>
-                    {r.handle} {r.plataforma}
-                  </Tenue>
+            <Tenue>Toca «Top Shorts» para ver los 15 Shorts de YouTube más vistos de cada uno. Se actualiza solo cada lunes.</Tenue>
+            {referentes.map((r) => {
+              const suyos = shorts.filter((x) => x.referente === r.nombre).sort((a, b) => a.posicion - b.posicion);
+              const ab = abierto === r.id;
+              return (
+                <View key={r.id} style={{ borderTopWidth: 1, borderTopColor: colors.linea, paddingTop: 8, gap: 8 }}>
+                  <Fila entre>
+                    <View style={{ flexShrink: 1 }}>
+                      <Texto peso="bold">{r.nombre}</Texto>
+                      <Tenue>
+                        {r.handle} {r.plataforma}
+                      </Tenue>
+                    </View>
+                    <Fila gap={4}>
+                      {suyos.length ? <Boton texto={ab ? 'Cerrar' : `Top Shorts (${suyos.length})`} chico onPress={() => setAbierto(ab ? null : r.id)} /> : null}
+                      <Boton texto="Quitar" chico tipo="gh" onPress={() => borrar('referentes', r.id)} />
+                    </Fila>
+                  </Fila>
+                  {ab ? (
+                    <View style={{ gap: 6, paddingLeft: 4 }}>
+                      {suyos.map((x) => (
+                        <View key={x.id} style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-start' }}>
+                          <Texto tam={13} peso="bold" color={colors.brasa} style={{ width: 22 }}>
+                            {x.posicion}
+                          </Texto>
+                          <View style={{ flex: 1, gap: 2 }}>
+                            <Texto tam={13} color={/^https?:\/\//.test(x.link) ? colors.brasa2 : colors.tinta} onPress={/^https?:\/\//.test(x.link) ? () => Linking.openURL(x.link) : undefined}>
+                              {x.titulo}
+                              {/^https?:\/\//.test(x.link) ? ' ↗' : ''}
+                            </Texto>
+                            <Fila gap={6} wrap>
+                              <Tag texto={`${vistasCortas(x.vistas)} vistas`} color={colors.tinta} />
+                              {x.fecha ? <Tenue tam={11}>{fd(x.fecha)}{x.fecha.slice(0, 4) !== String(new Date().getFullYear()) ? ' ' + x.fecha.slice(0, 4) : ''}</Tenue> : null}
+                              {x.alcance === 'reciente' ? <Tag texto="de los últimos meses" /> : null}
+                              {!x.confirmado ? <Tag texto="Short sin confirmar" aviso /> : null}
+                            </Fila>
+                          </View>
+                        </View>
+                      ))}
+                      <Tenue tam={11}>Actualizado el {fd(suyos[0].actualizado)}. «De los últimos meses»: no se pudo ver su histórico completo, así que ese puesto sale de sus subidas recientes.</Tenue>
+                    </View>
+                  ) : null}
                 </View>
-                <Boton texto="Quitar" chico tipo="gh" onPress={() => borrar('referentes', r.id)} />
-              </Fila>
-            ))}
+              );
+            })}
             {!referentes.length ? <Tenue>Aún no hay referentes.</Tenue> : null}
             <Fila wrap>
               <Campo value={rn} onChangeText={setRn} placeholder="Nombre" />
