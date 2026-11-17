@@ -3,7 +3,7 @@ import { useWindowDimensions, View } from 'react-native';
 
 import { ColaPedidos } from '@/components/Cola';
 import { FilaEvento, FilaIdea, useNuevaIdea } from '@/components/Filas';
-import { Boton, Card, Encabezado, Fila, Tag, Tenue, Texto, Titulo, Vacio } from '@/components/ui';
+import { Boton, Card, Encabezado, Fila, Logo, Tag, Tenue, Texto, Titulo, Vacio } from '@/components/ui';
 import { PILARES, PK } from '@/lib/contenido';
 import { addD, DIAS, eventos, hoy, iso, MESL } from '@/lib/fechas';
 import { colors, pilarColor } from '@/lib/theme';
@@ -29,6 +29,9 @@ export default function Hoy() {
 
   return (
     <View>
+      <View style={{ alignItems: dos ? 'flex-start' : 'center', marginBottom: 12 }}>
+        <Logo tam={dos ? 110 : 130} />
+      </View>
       <Encabezado titulo="Hola, equipo" bajada={`${dia[0].toUpperCase() + dia.slice(1)} ${t.getDate()} de ${MESL[t.getMonth()].toLowerCase()} · lo que se viene para Jorgito`}>
         <Boton texto="+ Nueva idea" onPress={() => nueva()} />
         <Boton texto="Pedir ideas a Claude" tipo="pri" onPress={() => router.push('/generador' as never)} />
