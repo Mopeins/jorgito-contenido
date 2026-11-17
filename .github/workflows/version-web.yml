@@ -1,0 +1,41 @@
+# Cada vez que se guarda un cambio en main, publica la versión web
+# que cualquiera abre en el navegador del celular: https://jorgito-contenido.expo.app
+name: Publicar versión web
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - run: npm ci
+
+      - name: Vincular el proyecto en Expo (la primera vez lo crea)
+        run: eas init --non-interactive --force
+
+      - name: Armar la versión web
+        run: npx expo export --platform web
+
+      - name: Publicar en EAS Hosting
+        run: |
+          set -o pipefail
+          if ! eas deploy --prod --non-interactive 2>&1 | tee salida.txt; then
+            echo "::error title=Error al publicar la web::$(tail -c 1500 salida.txt | tr '\n' ' ')"
+            exit 1
+          fi
+          echo "::notice title=Web publicada::$(grep -oE 'https://[a-z0-9.-]+expo\.app/?' salida.txt | sort -u | tr '\n' ' ')"
