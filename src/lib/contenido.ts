@@ -144,3 +144,14 @@ export const PASOS_BASE = [
   'Publicar en todas las plataformas',
   'Revisar resultados a las 48 horas',
 ];
+
+/** Hallazgos de los últimos 7 días (desde hoy hacia atrás una semana). */
+export const enLaSemana = (fecha?: string | null) => !!fecha && Date.now() - new Date(fecha).getTime() <= 7 * 864e5;
+/** Nombre corto del sitio para mostrar un link ("tiktok.com", "youtube.com"…). */
+export const sitio = (url: string) => {
+  try {
+    return new URL(url).hostname.replace(/^www\.|^m\./, '');
+  } catch {
+    return url;
+  }
+};

@@ -57,6 +57,7 @@ export type Hallazgo = {
   oportunidad: string;
   pilar: string;
   vistas: string;
+  ejemplos?: string[] | null;
   estado: 'nuevo' | 'usado' | 'descartado';
   origen: string;
 };

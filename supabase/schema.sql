@@ -92,7 +92,7 @@ create table public.radar (
   id uuid primary key default gen_random_uuid(),
   fecha timestamptz not null default now(),
   referente text default '', plataforma text default '', link text default '',
-  resumen text not null, oportunidad text default '', pilar text default 'tendencias', vistas text default '',
+  resumen text not null, oportunidad text default '', pilar text default 'tendencias', vistas text default '', ejemplos text[] not null default '{}',
   estado text not null default 'nuevo' check (estado in ('nuevo','usado','descartado')),
   origen text default 'manual'
 );

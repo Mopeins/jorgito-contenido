@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Linking, useWindowDimensions, View } from 'react-native';
 
 import { Boton, Campo, Card, Chips, Encabezado, Fila, Pill, Tag, Tenue, Texto, Titulo, Vacio } from '@/components/ui';
-import { PLATS, PLATS_RADAR, platRadar } from '@/lib/contenido';
+import { enLaSemana, PLATS, PLATS_RADAR, platRadar, sitio } from '@/lib/contenido';
 import { fd } from '@/lib/fechas';
 import { promptRadar } from '@/lib/ia';
 import { colors, pilarColor, plataformaColor } from '@/lib/theme';
@@ -19,6 +19,7 @@ export default function Radar() {
   const [ref, setRef] = useState('');
   const [plat, setPlat] = useState('Instagram');
   const [fp, setFp] = useState('todas');
+  const [periodo, setPeriodo] = useState<'semana' | 'todo'>('semana');
   const [link, setLink] = useState('');
   const [resumen, setResumen] = useState('');
   const [rn, setRn] = useState('');
@@ -27,7 +28,7 @@ export default function Radar() {
   const [ocupado, setOcupado] = useState<string | null>(null);
   const { width } = useWindowDimensions();
   const dos = width >= 1000;
-  const porEstado = radar.filter((r) => f === 'todos' || r.estado === f);
+  const porEstado = radar.filter((r) => (f === 'todos' || r.estado === f) && (periodo === 'todo' || enLaSemana(r.fecha)));
   const lista = porEstado.filter((r) => fp === 'todas' || platRadar(r.plataforma) === fp);
   const cuenta = (p: string) => porEstado.filter((r) => platRadar(r.plataforma) === p).length;
 
@@ -47,7 +48,7 @@ export default function Radar() {
     <View>
       <Encabezado titulo="Radar" bajada="Qué están haciendo los referentes, a qué se puede responder y qué ganchos están funcionando. Se actualiza solo cada mañana." />
       <View style={{ marginBottom: 14 }}>
-        <Chips valor={vista} onCambio={setVista} opciones={[['hallazgos', `Hallazgos (${radar.filter((r) => r.estado === 'nuevo').length} nuevos)`], ['hooks', `Hooks (${hooks.length})`]]} />
+        <Chips valor={vista} onCambio={setVista} opciones={[['hallazgos', `Hallazgos (${radar.filter((r) => r.estado === 'nuevo' && enLaSemana(r.fecha)).length} nuevos esta semana)`], ['hooks', `Hooks (${hooks.length})`]]} />
       </View>
       {vista === 'hooks' ? <RadarHooks ancho={dos} /> : (
       <View style={{ flexDirection: dos ? 'row' : 'column', gap: 16, alignItems: 'flex-start' }}>
@@ -62,6 +63,7 @@ export default function Radar() {
               ['todos', `Todos (${radar.length})`],
             ]}
           />
+          <Chips valor={periodo} onCambio={setPeriodo} opciones={[['semana', 'Última semana (hoy y 7 días atrás)'], ['todo', 'Todo el historial']]} />
           <Chips
             valor={fp}
             onCambio={setFp}
@@ -85,6 +87,20 @@ export default function Radar() {
                   {r.oportunidad}
                 </Texto>
               ) : null}
+              {/^https?:\/\//.test(r.link) || (r.ejemplos ?? []).length ? (
+                <View style={{ gap: 4 }}>
+                  {/^https?:\/\//.test(r.link) ? (
+                    <Texto tam={13} color={colors.brasa2} onPress={() => Linking.openURL(r.link)} lineas={1}>
+                      Fuente: {sitio(r.link)} ↗
+                    </Texto>
+                  ) : null}
+                  {(r.ejemplos ?? []).filter((e) => /^https?:\/\//.test(e)).map((e, k) => (
+                    <Texto key={e} tam={13} color={colors.brasa2} onPress={() => Linking.openURL(e)} lineas={1}>
+                      Ejemplo {k + 1}: {sitio(e)} ↗
+                    </Texto>
+                  ))}
+                </View>
+              ) : null}
               <Fila wrap>
                 {/^https?:\/\//.test(r.link) ? <Boton texto="Ver original" chico onPress={() => Linking.openURL(r.link)} /> : null}
                 {r.estado === 'nuevo' ? (
@@ -98,7 +114,7 @@ export default function Radar() {
               </Fila>
             </Card>
           ))}
-          {!lista.length ? <Vacio>Sin hallazgos en esta lista. El radar diario deja aquí lo que encuentre cada mañana; también pueden pegar uno a mano.</Vacio> : null}
+          {!lista.length ? <Vacio>{periodo === 'semana' ? 'Nada en los últimos 7 días con estos filtros. Prueba con «Todo el historial».' : 'Sin hallazgos en esta lista.'} El radar diario deja aquí lo que encuentre cada mañana; también pueden pegar uno a mano.</Vacio> : null}
         </View>
         <View style={{ flex: dos ? 1 : undefined, width: dos ? undefined : '100%', gap: 16 }}>
           <Card>

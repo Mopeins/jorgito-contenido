@@ -23,8 +23,10 @@ export function Texto({
   peso = 'normal',
   style,
   lineas,
+  onPress,
 }: {
   children: ReactNode;
+  onPress?: () => void;
   tam?: number;
   color?: string;
   peso?: 'normal' | 'medio' | 'bold' | 'titulo' | 'tituloMedio';
@@ -33,7 +35,7 @@ export function Texto({
 }) {
   const f = { normal: fonts.texto, medio: fonts.textoMedio, bold: fonts.textoBold, titulo: fonts.titulo, tituloMedio: fonts.tituloMedio }[peso];
   return (
-    <Text numberOfLines={lineas} style={[{ fontFamily: f, fontSize: tam, color, lineHeight: Math.round(tam * 1.45) }, style]}>
+    <Text numberOfLines={lineas} onPress={onPress} style={[{ fontFamily: f, fontSize: tam, color, lineHeight: Math.round(tam * 1.45) }, style]}>
       {children}
     </Text>
   );

@@ -1,12 +1,12 @@
 import { useRouter } from 'expo-router';
-import { useWindowDimensions, View } from 'react-native';
+import { Linking, useWindowDimensions, View } from 'react-native';
 
 import { ColaPedidos } from '@/components/Cola';
 import { FilaEvento, FilaIdea, useNuevaIdea } from '@/components/Filas';
 import { Boton, Card, Encabezado, Fila, Logo, Tag, Tenue, Texto, Titulo, Vacio } from '@/components/ui';
-import { PILARES, PK } from '@/lib/contenido';
+import { enLaSemana, PILARES, PK, platRadar, sitio } from '@/lib/contenido';
 import { addD, DIAS, eventos, hoy, iso, MESL } from '@/lib/fechas';
-import { colors, pilarColor } from '@/lib/theme';
+import { colors, pilarColor, plataformaColor } from '@/lib/theme';
 import { useDatos } from '@/providers/datos';
 
 export default function Hoy() {
@@ -23,7 +23,7 @@ export default function Hoy() {
       return f && f >= iso(t) && f <= iso(addD(t, 7)) && i.estado !== 'publicada';
     })
     .sort((a, b) => (a.fecha_grabacion || a.fecha_publicacion || '').localeCompare(b.fecha_grabacion || b.fecha_publicacion || ''));
-  const nuevos = radar.filter((r) => r.estado === 'nuevo');
+  const nuevos = radar.filter((r) => r.estado === 'nuevo' && enLaSemana(r.fecha));
   const pendientes = propuestas.filter((p) => p.estado === 'pendiente');
   const dia = DIAS[t.getDay()];
 
@@ -76,19 +76,29 @@ export default function Hoy() {
           <ColaPedidos max={3} />
           <Card>
             <Fila entre>
-              <Titulo tam={18}>Radar de referentes</Titulo>
+              <View>
+                <Titulo tam={18}>Radar de la semana</Titulo>
+                <Tenue>Hallazgos nuevos de hoy y los 7 días anteriores</Tenue>
+              </View>
               <Boton texto={`${nuevos.length} nuevos`} chico tipo="gh" onPress={() => router.push('/radar' as never)} />
             </Fila>
-            {nuevos.slice(0, 4).map((r) => (
+            {nuevos.slice(0, 8).map((r) => (
               <View key={r.id} style={{ paddingVertical: 8, borderTopWidth: 1, borderTopColor: colors.linea, gap: 2 }}>
                 <Fila gap={6}>
                   <Texto peso="bold">{r.referente || 'Hallazgo'}</Texto>
-                  {r.plataforma ? <Tag texto={r.plataforma} /> : null}
+                  <Tag texto={platRadar(r.plataforma)} color={plataformaColor[platRadar(r.plataforma)]} />
                 </Fila>
                 <Tenue lineas={2}>{r.resumen}</Tenue>
+                <Fila gap={12} wrap>
+                  {[r.link, ...(r.ejemplos ?? [])].filter((u) => /^https?:\/\//.test(u ?? '')).slice(0, 3).map((u, k) => (
+                    <Texto key={u + k} tam={12} color={colors.brasa2} onPress={() => Linking.openURL(u)}>
+                      {k === 0 && u === r.link ? 'Fuente' : 'Ejemplo'}: {sitio(u)} ↗
+                    </Texto>
+                  ))}
+                </Fila>
               </View>
             ))}
-            {!nuevos.length ? <Vacio>Aún no hay hallazgos. El radar diario los irá dejando aquí.</Vacio> : null}
+            {!nuevos.length ? <Vacio>No hay hallazgos nuevos de esta semana. El radar diario los irá dejando aquí.</Vacio> : null}
           </Card>
         </View>
       </View>
