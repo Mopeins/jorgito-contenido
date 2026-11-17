@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useWindowDimensions, View } from 'react-native';
 
+import { ColaPedidos } from '@/components/Cola';
 import { FilaEvento, FilaIdea, useNuevaIdea } from '@/components/Filas';
 import { Boton, Card, Encabezado, Fila, Tag, Tenue, Texto, Titulo, Vacio } from '@/components/ui';
 import { PILARES, PK } from '@/lib/contenido';
@@ -30,7 +31,7 @@ export default function Hoy() {
     <View>
       <Encabezado titulo="Hola, equipo" bajada={`${dia[0].toUpperCase() + dia.slice(1)} ${t.getDate()} de ${MESL[t.getMonth()].toLowerCase()} · lo que se viene para Jorgito`}>
         <Boton texto="+ Nueva idea" onPress={() => nueva()} />
-        <Boton texto="Generar ideas con IA" tipo="pri" onPress={() => router.push('/generador' as never)} />
+        <Boton texto="Pedir ideas a Claude" tipo="pri" onPress={() => router.push('/generador' as never)} />
       </Encabezado>
 
       <Fila gap={12} wrap style={{ marginBottom: 16 }}>
@@ -69,6 +70,7 @@ export default function Hoy() {
               <Vacio>No hay propuestas pendientes.</Vacio>
             )}
           </Card>
+          <ColaPedidos max={3} />
           <Card>
             <Fila entre>
               <Titulo tam={18}>Radar de referentes</Titulo>

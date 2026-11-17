@@ -3,11 +3,11 @@ import { ScrollView, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, Line, Polyline, Text as SvgText } from 'react-native-svg';
 
 import { CampoFecha } from '@/components/CampoFecha';
-import { SubirImagen } from '@/components/SubirImagen';
-import { Boton, Campo, Card, Chips, Encabezado, Etiqueta, Fila, Markdown, Tenue, Texto, Titulo, Vacio } from '@/components/ui';
+import { usePedir } from '@/components/Cola';
+import { Boton, Campo, Card, Chips, Encabezado, Etiqueta, Fila, Markdown, Tag, Tenue, Texto, Titulo, Vacio } from '@/components/ui';
 import { MARCA, PILARES, PK, PLATS } from '@/lib/contenido';
 import { addD, fd, hoy, iso, lunes } from '@/lib/fechas';
-import { leerJSON, preguntarIA } from '@/lib/ia';
+import { HORARIO_COLA } from '@/lib/ia';
 import { colors, fonts, plataformaColor } from '@/lib/theme';
 import type { Metrica } from '@/lib/tipos';
 import { useDatos } from '@/providers/datos';
@@ -17,9 +17,9 @@ type Form = { semana: string; plataforma: string; seguidores: string; alcance: s
 const VACIO = (): Form => ({ semana: iso(lunes(hoy())), plataforma: 'Instagram', seguidores: '', alcance: '', reproducciones: '', interacciones: '', top: '', notas: '' });
 
 export default function Metricas() {
-  const { metricas, informes, ideas, crear, borrar, recargar, avisar } = useDatos();
+  const { metricas, informes, ideas, crear, borrar, avisar, solicitudes } = useDatos();
+  const pedir = usePedir();
   const [f, setF] = useState<Form>(VACIO());
-  const [leyendo, setLeyendo] = useState(false);
   const [analizando, setAnalizando] = useState(false);
   const { width } = useWindowDimensions();
   const dos = width >= 1000;
@@ -36,32 +36,6 @@ export default function Metricas() {
     }
   };
 
-  const leer = async (img: { data: string; media_type: string }) => {
-    setLeyendo(true);
-    try {
-      const o = leerJSON<Record<string, string | number | null>>(
-        await preguntarIA(
-          'Este es un pantallazo de estadísticas de redes sociales de un creador de contenido. Extrae los números que aparezcan. Responde SOLO con JSON: {"plataforma":"Instagram|Facebook|TikTok|YouTube","seguidores":number|null,"alcance":number|null,"reproducciones":number|null,"interacciones":number|null,"top":"título o descripción del contenido con mejor desempeño, si aparece","notas":"periodo que cubre el pantallazo y cualquier dato relevante"}. Convierte abreviaciones como 12,3 mil o 1.2K en números enteros. Usa null si un dato no aparece.',
-          img,
-        ),
-      );
-      setF((x) => ({
-        ...x,
-        plataforma: PLATS.includes(String(o.plataforma)) ? String(o.plataforma) : x.plataforma,
-        seguidores: o.seguidores != null ? String(o.seguidores) : x.seguidores,
-        alcance: o.alcance != null ? String(o.alcance) : x.alcance,
-        reproducciones: o.reproducciones != null ? String(o.reproducciones) : x.reproducciones,
-        interacciones: o.interacciones != null ? String(o.interacciones) : x.interacciones,
-        top: o.top ? String(o.top) : x.top,
-        notas: o.notas ? String(o.notas) : x.notas,
-      }));
-      avisar('Revisa los datos y guarda');
-    } catch (e) {
-      avisar(e instanceof Error ? e.message : 'No se pudo leer');
-    }
-    setLeyendo(false);
-  };
-
   const informe = async () => {
     if (!metricas.length) return avisar('Primero registra al menos una semana');
     setAnalizando(true);
@@ -70,27 +44,23 @@ export default function Metricas() {
     const pub = ideas
       .filter((i) => i.estado === 'publicada' && (i.fecha_publicacion ?? '') >= iso(addD(hoy(), -14)))
       .map((i) => ({ titulo: i.titulo, pilar: PILARES[i.pilar].n, formato: i.formato, fecha: i.fecha_publicacion }));
-    try {
-      const texto = await preguntarIA(
-        `${MARCA}\n\nEres el estratega de contenido del equipo. Con estos datos, escribe el informe de cierre de semana en español chileno, breve y directo (máximo 250 palabras), en markdown simple con estas secciones: "### Cómo vamos" (crecimiento por plataforma con números y % si hay semanas para comparar), "### Qué funcionó" (relaciona con los pilares cuando se pueda), "### Qué ajustar" y "### 3 acciones para esta semana". No inventes números que no estén en los datos; si falta información, dilo.\n\nMétricas (últimas 5 semanas): ${JSON.stringify(met)}\nPublicado últimos 14 días: ${JSON.stringify(pub)}\nIdeas en cola sin publicar: ${ideas.filter((i) => i.estado !== 'publicada').length}\nPilares: ${PK.map((p) => `${PILARES[p].n} (${PILARES[p].pub})`).join('; ')}`,
-      );
-      await crear('informes', { texto });
-      await recargar('informes');
-    } catch (e) {
-      avisar(e instanceof Error ? e.message : 'No se pudo generar');
-    }
+    await pedir({
+      tipo: 'informe',
+      titulo: `Informe de la semana del ${fd(iso(lunes(hoy())))}`,
+      prompt: `${MARCA}\n\nEres el estratega de contenido del equipo. Con estos datos, escribe el informe de cierre de semana en español chileno, breve y directo (máximo 250 palabras), en markdown simple con estas secciones: "### Cómo vamos" (crecimiento por plataforma con números y % si hay semanas para comparar), "### Qué funcionó" (relaciona con los pilares cuando se pueda), "### Qué ajustar" y "### 3 acciones para esta semana". No inventes números que no estén en los datos; si falta información, dilo. Responde SOLO con el informe en markdown.\n\nMétricas (últimas 5 semanas): ${JSON.stringify(met)}\nPublicado últimos 14 días: ${JSON.stringify(pub)}\nIdeas en cola sin publicar: ${ideas.filter((i) => i.estado !== 'publicada').length}\nPilares: ${PK.map((p) => `${PILARES[p].n} (${PILARES[p].pub})`).join('; ')}`,
+    });
     setAnalizando(false);
   };
 
   return (
     <View>
       <Encabezado titulo="Métricas semanales" bajada="Cada lunes: subir números (o el pantallazo) y cerrar la semana con un informe.">
-        <Boton texto={analizando ? 'Analizando…' : 'Generar informe de la semana'} tipo="pri" cargando={analizando} onPress={informe} />
+        {solicitudes.some((x) => x.tipo === 'informe' && (x.estado === 'pendiente' || x.estado === 'procesando')) ? <Tag texto={`Informe en cola (${HORARIO_COLA})`} aviso /> : <Boton texto="Pedir informe a Claude" tipo="pri" cargando={analizando} onPress={informe} />}
       </Encabezado>
       <View style={{ flexDirection: dos ? 'row' : 'column', gap: 16, alignItems: 'flex-start' }}>
         <Card style={{ flex: dos ? 1 : undefined, width: dos ? undefined : '100%' }}>
           <Titulo tam={18}>Registrar semana</Titulo>
-          <SubirImagen texto={leyendo ? 'Leyendo el pantallazo…' : '📷 Sube un pantallazo de Meta Business Suite, TikTok o YouTube Studio y la IA llena los campos'} onImagen={leer} />
+          <Tenue tam={13}>¿Tienes pantallazos de Meta, TikTok o YouTube Studio? Mándaselos a Claude en el chat del proyecto y él carga los números aquí.</Tenue>
           <CampoFecha etiqueta="Semana (lunes)" valor={f.semana} onCambio={(v) => set('semana', v)} />
           <Etiqueta>Plataforma</Etiqueta>
           <Chips valor={f.plataforma} onCambio={(v) => set('plataforma', v)} opciones={PLATS.map((p) => [p, p] as [string, string])} />

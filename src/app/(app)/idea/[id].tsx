@@ -3,10 +3,11 @@ import { useMemo, useState } from 'react';
 import { Pressable, useWindowDimensions, View } from 'react-native';
 
 import { CampoFecha } from '@/components/CampoFecha';
+import { usePedir } from '@/components/Cola';
 import { Boton, Campo, Card, Chips, ChipsMulti, Etiqueta, Fila, Pill, Tag, Tenue, Texto, Titulo, Vacio } from '@/components/ui';
 import { ESTADOS, FORMATOS, PILARES, PK, PLATS, TIPOS_PROPUESTA } from '@/lib/contenido';
 import { fd } from '@/lib/fechas';
-import { esTipoPropuesta, leerJSON, preguntarIA, promptPropuestas } from '@/lib/ia';
+import { HORARIO_COLA, promptPropuestas } from '@/lib/ia';
 import { colors, pilarColor } from '@/lib/theme';
 import type { Estado, Idea, Pilar, Propuesta, TipoPropuesta } from '@/lib/tipos';
 import { useDatos } from '@/providers/datos';
@@ -208,7 +209,8 @@ function Flujo({ ideaId, pasos, color }: { ideaId: string; pasos: import('@/lib/
 
 /* ---------------- Propuestas ---------------- */
 function Propuestas({ idea, props }: { idea: Idea; props: Propuesta[] }) {
-  const { crear, editar, avisar } = useDatos();
+  const { crear, editar, avisar, solicitudes } = useDatos();
+  const pedir = usePedir();
   const { email } = useSesion();
   const [tipo, setTipo] = useState<TipoPropuesta>('mejora');
   const [texto, setTexto] = useState('');
@@ -225,19 +227,10 @@ function Propuestas({ idea, props }: { idea: Idea; props: Propuesta[] }) {
     setTexto('');
   };
 
+  const enCola = solicitudes.some((x) => x.tipo === 'propuestas' && x.destino?.idea_id === idea.id && (x.estado === 'pendiente' || x.estado === 'procesando'));
   const pedirIA = async () => {
     setPensando(true);
-    try {
-      const r = leerJSON<{ propuestas: { tipo: string; texto: string }[] }>(await preguntarIA(promptPropuestas(idea, props, pedido)));
-      for (const p of r.propuestas ?? []) {
-        if (!p.texto) continue;
-        await crear('propuestas', { idea_id: idea.id, tipo: esTipoPropuesta(p.tipo) ? p.tipo : 'mejora', texto: p.texto, autor: 'IA', es_ia: true });
-      }
-      setPedido('');
-      avisar('La IA dejó sus propuestas');
-    } catch (e) {
-      avisar(e instanceof Error ? e.message : 'No se pudo generar');
-    }
+    if (await pedir({ tipo: 'propuestas', titulo: `Propuestas para: ${idea.titulo}`, prompt: promptPropuestas(idea, props, pedido), destino: { idea_id: idea.id } })) setPedido('');
     setPensando(false);
   };
 
@@ -261,12 +254,13 @@ function Propuestas({ idea, props }: { idea: Idea; props: Propuesta[] }) {
       {!pendientes.length ? <Vacio>Sin propuestas pendientes.</Vacio> : null}
 
       <View style={{ gap: 8, borderTopWidth: 1, borderTopColor: colors.linea, paddingTop: 12 }}>
-        <Etiqueta>Pedir propuestas a la IA</Etiqueta>
+        <Etiqueta>Pedir propuestas a Claude ({HORARIO_COLA})</Etiqueta>
+        {enCola ? <Tag texto="Hay un pedido en cola para esta idea" aviso /> : null}
         <Fila>
           <View style={{ flex: 1 }}>
             <Campo value={pedido} onChangeText={setPedido} placeholder="Opcional: “3 ganchos más polémicos”, “versión para Kunstmann”…" />
           </View>
-          <Boton texto={pensando ? 'Pensando…' : '✦ Proponer'} tipo="pri" onPress={pedirIA} cargando={pensando} />
+          <Boton texto="✦ Pedir a Claude" tipo="pri" onPress={pedirIA} cargando={pensando} />
         </Fila>
       </View>
       <View style={{ gap: 8, borderTopWidth: 1, borderTopColor: colors.linea, paddingTop: 12 }}>

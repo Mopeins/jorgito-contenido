@@ -22,7 +22,7 @@ Para eso necesita el secreto `EXPO_TOKEN` en GitHub → Settings → Secrets and
 
 ## Ajustes únicos en Supabase (proyecto `jorgito-contenido`)
 
-1. **Clave de IA:** en Edge Functions → Secrets, agrega `ANTHROPIC_API_KEY` (de console.anthropic.com). Sin ella todo funciona menos los botones de IA.
+1. **IA:** la app no llama a la IA directo. Los botones dejan pedidos en la tabla `solicitudes` y la tarea programada "Cola de pedidos Jorgito" (con el plan de Claude) los resuelve cada hora entre 8:00 y 23:00. La función `ia` queda lista por si algún día se quiere respuesta instantánea con `ANTHROPIC_API_KEY`.
 2. **Correo con código:** en Authentication → Emails → Magic Link, pon el código en el texto, por ejemplo `Tu código para entrar a la Central de Contenido es {{ .Token }}`.
 3. **Dirección de la web:** en Authentication → URL Configuration, pon `https://jorgito-contenido.expo.app` como Site URL.
 

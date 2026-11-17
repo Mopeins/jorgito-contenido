@@ -127,3 +127,14 @@ export function aFilaIdea(x: IdeaIA, extra: { evento?: string; fecha?: string | 
 }
 
 export const esTipoPropuesta = (t: string): t is TipoPropuesta => t in TIPOS_PROPUESTA;
+
+/* ---------------- Cola de pedidos a Claude ----------------
+   La app no llama a la IA directamente: deja el pedido en la tabla "solicitudes" y una tarea
+   programada (con el plan de Claude del equipo) lo resuelve cada hora y escribe el resultado. */
+export type Pedido = {
+  tipo: 'ideas' | 'propuestas' | 'radar' | 'informe';
+  titulo: string;
+  prompt: string;
+  destino?: Record<string, string | null | undefined>;
+};
+export const HORARIO_COLA = 'cada hora, de 8:00 a 23:00';

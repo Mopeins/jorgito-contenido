@@ -87,3 +87,16 @@ export type FechaPropia = {
 
 export type Informe = { id: string; fecha: string; texto: string };
 export type Miembro = { email: string; nombre: string | null; rol: 'admin' | 'editor' };
+
+export type Solicitud = {
+  id: string;
+  tipo: 'ideas' | 'propuestas' | 'radar' | 'informe';
+  titulo: string;
+  prompt: string;
+  destino: Record<string, string | null>;
+  estado: 'pendiente' | 'procesando' | 'lista' | 'error';
+  resultado: string;
+  creado_por: string;
+  creado: string;
+  resuelto: string | null;
+};
