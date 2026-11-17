@@ -52,7 +52,7 @@ export default function Entrar() {
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20, backgroundColor: colors.fondo }}>
       <Card style={{ width: '100%', maxWidth: 380, padding: 28, gap: 14, alignItems: 'stretch' }}>
         <View style={{ alignItems: 'center', gap: 10 }}>
-          <Logo tam={56} />
+          <Logo tam={150} />
           <Titulo tam={22}>Central de Contenido</Titulo>
           <Tenue tam={13} style={{ textAlign: 'center' }}>
             Jorgito Parrillero · {paso === 'clave' ? 'Ingresa la clave del equipo' : paso === 'correo' ? 'Entra con tu correo del equipo' : `Te mandamos un código a ${email.trim()}`}

@@ -1,16 +1,16 @@
 export const colors = {
-  fondo: '#13100E',
-  s1: '#1C1815',
-  s2: '#25201C',
-  s3: '#2F2924',
-  linea: '#3A332D',
-  tinta: '#F4EDE6',
-  tenue: '#A39A90',
-  tenue2: '#7D746B',
-  brasa: '#FF6B2C',
-  brasa2: '#FF8F5C',
-  sobreBrasa: '#1A0D05',
-  rojo: '#E5534B',
+  fondo: '#0D0D0D',
+  s1: '#161616',
+  s2: '#1F1F1F',
+  s3: '#2A2A2A',
+  linea: '#363636',
+  tinta: '#FFFFFF',
+  tenue: '#A3A3A3',
+  tenue2: '#767676',
+  brasa: '#E32626',
+  brasa2: '#FF5A5A',
+  sobreBrasa: '#FFFFFF',
+  rojo: '#FF6B6B',
   aviso: '#F2B544',
   avisoFondo: '#3A2E14',
 } as const;
@@ -24,7 +24,7 @@ export const pilarColor = {
 } as const;
 
 export const plataformaColor: Record<string, string> = {
-  Instagram: '#FF6B2C',
+  Instagram: '#E32626',
   Facebook: '#4FC3F7',
   TikTok: '#B98CFF',
   YouTube: '#F2B544',

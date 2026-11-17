@@ -9,7 +9,7 @@ export default function SinAcceso() {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20, backgroundColor: colors.fondo }}>
       <Card style={{ width: '100%', maxWidth: 380, padding: 28, alignItems: 'center', gap: 12 }}>
-        <Logo tam={56} />
+        <Logo tam={150} />
         <Titulo tam={22}>Sin acceso</Titulo>
         <Tenue tam={13} style={{ textAlign: 'center' }}>
           {email} no está en el equipo. Pídele a Ignacio que te agregue y vuelve a intentar.

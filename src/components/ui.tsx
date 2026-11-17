@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   Text,
   TextInput,
@@ -274,12 +275,15 @@ export function Encabezado({ titulo, bajada, children }: { titulo: string; bajad
 }
 
 export function Logo({ tam = 40 }: { tam?: number }) {
+  // En tamaños chicos solo se lee la firma "JP"; en grande va el logo completo con el texto circular.
+  const completo = tam >= 90;
   return (
-    <View style={{ width: tam, height: tam, borderRadius: tam / 2, backgroundColor: colors.brasa, alignItems: 'center', justifyContent: 'center' }}>
-      <Texto tam={tam * 0.38} peso="titulo" color={colors.sobreBrasa}>
-        JP
-      </Texto>
-    </View>
+    <Image
+      source={completo ? require('../../assets/images/logo.png') : require('../../assets/images/logo-jp.png')}
+      style={{ width: tam, height: tam }}
+      resizeMode="contain"
+      accessibilityLabel="Jorgito Parrillero"
+    />
   );
 }
 
