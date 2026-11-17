@@ -13,7 +13,7 @@ Web app para gestionar el contenido de Jorgito. Usa el mismo stack que Despensap
 - **Generador IA:** ideas por pilar, Día D (receta, truco y versus) y Mundial por llaves.
 - **Radar:** hallazgos de los referentes, que se convierten en ideas con un clic.
 - **Métricas:** registro semanal (la IA lee pantallazos), un gráfico de seguidores y el informe semanal.
-- **Equipo:** solo los correos de la lista pueden entrar. El primero en entrar queda como admin.
+- **Acceso:** se entra con la clave del equipo (cuenta compartida `equipo@jorgitoparrillero.cl`, admin). Quien tenga su propio correo en la lista de Equipo también puede entrar con un código al correo.
 
 ## Cómo se publica
 

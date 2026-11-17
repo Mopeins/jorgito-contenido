@@ -5,13 +5,26 @@ import { Boton, Campo, Card, Logo, Tenue, Texto, Titulo } from '@/components/ui'
 import { mensajeError, supabase } from '@/lib/supabase';
 import { colors } from '@/lib/theme';
 
-/** Entrada con código al correo (igual que Despensapp). Solo los correos del equipo ven los datos. */
+/** Cuenta compartida del equipo: se entra solo con la clave. */
+const CUENTA_EQUIPO = 'equipo@jorgitoparrillero.cl';
+
+/** Entrada con la clave del equipo, o con código al correo para quien tenga su propia cuenta. */
 export default function Entrar() {
   const [email, setEmail] = useState('');
   const [codigo, setCodigo] = useState('');
-  const [paso, setPaso] = useState<'correo' | 'codigo'>('correo');
+  const [paso, setPaso] = useState<'clave' | 'correo' | 'codigo'>('clave');
+  const [clave, setClave] = useState('');
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState('');
+
+  const entrarConClave = async () => {
+    if (!clave) return;
+    setCargando(true);
+    setError('');
+    const { error: err } = await supabase.auth.signInWithPassword({ email: CUENTA_EQUIPO, password: clave });
+    setCargando(false);
+    if (err) setError('Clave incorrecta');
+  };
 
   const pedir = async () => {
     const e = email.trim().toLowerCase();
@@ -42,13 +55,20 @@ export default function Entrar() {
           <Logo tam={56} />
           <Titulo tam={22}>Central de Contenido</Titulo>
           <Tenue tam={13} style={{ textAlign: 'center' }}>
-            Jorgito Parrillero · {paso === 'correo' ? 'Entra con tu correo del equipo' : `Te mandamos un código a ${email.trim()}`}
+            Jorgito Parrillero · {paso === 'clave' ? 'Ingresa la clave del equipo' : paso === 'correo' ? 'Entra con tu correo del equipo' : `Te mandamos un código a ${email.trim()}`}
           </Tenue>
         </View>
-        {paso === 'correo' ? (
+        {paso === 'clave' ? (
+          <>
+            <Campo value={clave} onChangeText={setClave} placeholder="Clave" secureTextEntry autoCapitalize="none" autoComplete="current-password" onSubmitEditing={entrarConClave} style={{ textAlign: 'center', fontSize: 16 }} />
+            <Boton texto="Entrar" tipo="pri" onPress={entrarConClave} cargando={cargando} deshabilitado={!clave} />
+            <Boton texto="Entrar con mi correo" tipo="gh" chico onPress={() => { setError(''); setPaso('correo'); }} />
+          </>
+        ) : paso === 'correo' ? (
           <>
             <Campo value={email} onChangeText={setEmail} placeholder="tucorreo@ejemplo.cl" autoCapitalize="none" keyboardType="email-address" autoComplete="email" onSubmitEditing={pedir} />
             <Boton texto="Enviar código" tipo="pri" onPress={pedir} cargando={cargando} />
+            <Boton texto="← Entrar con la clave" tipo="gh" chico onPress={() => { setError(''); setPaso('clave'); }} />
           </>
         ) : (
           <>
