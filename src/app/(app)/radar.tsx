@@ -117,6 +117,24 @@ export default function Radar() {
           {!lista.length ? <Vacio>{periodo === 'semana' ? 'Nada en los últimos 7 días con estos filtros. Prueba con «Todo el historial».' : 'Sin hallazgos en esta lista.'} El radar diario deja aquí lo que encuentre cada mañana; también pueden pegar uno a mano.</Vacio> : null}
         </View>
         <View style={{ flex: dos ? 1 : undefined, width: dos ? undefined : '100%', gap: 16 }}>
+          <Card style={{ borderLeftWidth: 3, borderLeftColor: colors.brasa }}>
+            <Titulo tam={18}>Cómo trabaja el radar</Titulo>
+            {[
+              ['Cuándo', 'Todas las mañanas a las 7:39. Por defecto ves lo de hoy y los 7 días anteriores.'],
+              ['Referentes', 'Revisa lo que publicaron en los últimos 3 días en Instagram, Facebook, TikTok, YouTube Shorts, YouTube largo y la web.'],
+              ['Tendencias', 'Solo entran si tienen 1 millón de visualizaciones o más, comprobado con un video o una fuente. Noticias, eventos o lanzamientos sin vistas no cuentan.'],
+              ['Hooks', 'Ganchos que funcionaron durante toda la última semana, adaptados al español chileno.'],
+              ['Links', 'Cada hallazgo trae la fuente donde se confirmó y, cuando existen, videos de ejemplo.'],
+              ['Ojo', 'Instagram y Facebook casi no se pueden revisar de forma automática. Si ven un reel bueno, péguenlo abajo.'],
+            ].map(([t, d]) => (
+              <Texto key={t} tam={13} color={colors.tenue}>
+                <Texto tam={13} peso="bold">
+                  {t}:{' '}
+                </Texto>
+                {d}
+              </Texto>
+            ))}
+          </Card>
           <Card>
             <Titulo tam={18}>Pegar un hallazgo</Titulo>
             <Campo etiqueta="Quién" value={ref} onChangeText={setRef} placeholder="Ej: Nick DiGiovanni" />
