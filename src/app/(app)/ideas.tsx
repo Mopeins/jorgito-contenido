@@ -11,7 +11,8 @@ import type { Pilar } from '@/lib/tipos';
 import { useDatos } from '@/providers/datos';
 
 export default function Ideas() {
-  const { ideas, pasos, propuestas, editar } = useDatos();
+  const { ideas, pasos, propuestas, editar, borrar } = useDatos();
+  const [porBorrar, setPorBorrar] = useState<string | null>(null);
   const [f, setF] = useState<'todos' | Pilar>('todos');
   const router = useRouter();
   const nueva = useNuevaIdea();
@@ -73,9 +74,19 @@ export default function Ideas() {
                         {i.fecha_publicacion ? '📤 ' + fd(i.fecha_publicacion) : ''}
                       </Tenue>
                     ) : null}
+                    {porBorrar === i.id ? (
+                      <Fila entre>
+                        <Tenue tam={11}>¿Borrar esta idea?</Tenue>
+                        <Fila gap={4}>
+                          <Boton texto="Sí" chico tipo="peligro" onPress={() => borrar('ideas', i.id)} />
+                          <Boton texto="No" chico tipo="gh" onPress={() => setPorBorrar(null)} />
+                        </Fila>
+                      </Fila>
+                    ) : null}
                     <Fila entre>
                       {ix > 0 ? <Boton texto="←" chico tipo="gh" onPress={() => editar('ideas', i.id, { estado: ESTADOS[ix - 1][0] })} /> : <View />}
-                      {ix < ESTADOS.length - 1 ? <Boton texto="→" chico tipo="gh" onPress={() => editar('ideas', i.id, { estado: ESTADOS[ix + 1][0] })} /> : null}
+                      <Boton texto="🗑" chico tipo="gh" onPress={() => setPorBorrar(i.id)} />
+                      {ix < ESTADOS.length - 1 ? <Boton texto="→" chico tipo="gh" onPress={() => editar('ideas', i.id, { estado: ESTADOS[ix + 1][0] })} /> : <View />}
                     </Fila>
                   </Pressable>
                 );

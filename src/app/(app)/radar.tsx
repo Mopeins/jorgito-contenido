@@ -8,11 +8,13 @@ import { promptRadar } from '@/lib/ia';
 import { colors, pilarColor } from '@/lib/theme';
 import type { Hallazgo, Pilar } from '@/lib/tipos';
 import { usePedir } from '@/components/Cola';
+import { RadarHooks } from '@/components/Hooks';
 import { useDatos } from '@/providers/datos';
 
 export default function Radar() {
-  const { radar, referentes, crear, editar, borrar, solicitudes } = useDatos();
+  const { radar, referentes, crear, editar, borrar, solicitudes, hooks } = useDatos();
   const pedir = usePedir();
+  const [vista, setVista] = useState<'hallazgos' | 'hooks'>('hallazgos');
   const [f, setF] = useState<'nuevo' | 'usado' | 'descartado' | 'todos'>('nuevo');
   const [ref, setRef] = useState('');
   const [plat, setPlat] = useState('Instagram');
@@ -40,7 +42,11 @@ export default function Radar() {
 
   return (
     <View>
-      <Encabezado titulo="Radar" bajada="Qué están haciendo los referentes y a qué se puede responder, replicar o comprobar." />
+      <Encabezado titulo="Radar" bajada="Qué están haciendo los referentes, a qué se puede responder y qué ganchos están funcionando. Se actualiza solo cada mañana." />
+      <View style={{ marginBottom: 14 }}>
+        <Chips valor={vista} onCambio={setVista} opciones={[['hallazgos', `Hallazgos (${radar.filter((r) => r.estado === 'nuevo').length} nuevos)`], ['hooks', `Hooks (${hooks.length})`]]} />
+      </View>
+      {vista === 'hooks' ? <RadarHooks ancho={dos} /> : (
       <View style={{ flexDirection: dos ? 'row' : 'column', gap: 16, alignItems: 'flex-start' }}>
         <View style={{ flex: dos ? 2 : undefined, width: dos ? undefined : '100%', gap: 12 }}>
           <Chips
@@ -140,6 +146,7 @@ export default function Radar() {
           </Card>
         </View>
       </View>
+      )}
     </View>
   );
 }

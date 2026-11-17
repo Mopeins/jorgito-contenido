@@ -100,3 +100,20 @@ export type Solicitud = {
   creado: string;
   resuelto: string | null;
 };
+
+export type TipoHook = 'desafio' | 'comparacion' | 'pregunta' | 'promesa' | 'polemica' | 'curiosidad' | 'historia';
+export type Hook = {
+  id: string;
+  original: string;
+  adaptado: string;
+  tipo: TipoHook;
+  por_que: string;
+  referente: string;
+  plataforma: string;
+  link: string;
+  vistas: string;
+  favorito: boolean;
+  usado: boolean;
+  origen: string;
+  creado: string;
+};
