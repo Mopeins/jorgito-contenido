@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Linking, useWindowDimensions, View } from 'react-native';
 
 import { Boton, Campo, Card, Chips, Encabezado, Fila, Pill, Tag, Tenue, Texto, Titulo, Vacio } from '@/components/ui';
-import { PLATS } from '@/lib/contenido';
+import { PLATS, PLATS_RADAR, platRadar } from '@/lib/contenido';
 import { fd } from '@/lib/fechas';
 import { promptRadar } from '@/lib/ia';
-import { colors, pilarColor } from '@/lib/theme';
+import { colors, pilarColor, plataformaColor } from '@/lib/theme';
 import type { Hallazgo, Pilar } from '@/lib/tipos';
 import { usePedir } from '@/components/Cola';
 import { RadarHooks } from '@/components/Hooks';
@@ -18,6 +18,7 @@ export default function Radar() {
   const [f, setF] = useState<'nuevo' | 'usado' | 'descartado' | 'todos'>('nuevo');
   const [ref, setRef] = useState('');
   const [plat, setPlat] = useState('Instagram');
+  const [fp, setFp] = useState('todas');
   const [link, setLink] = useState('');
   const [resumen, setResumen] = useState('');
   const [rn, setRn] = useState('');
@@ -26,7 +27,9 @@ export default function Radar() {
   const [ocupado, setOcupado] = useState<string | null>(null);
   const { width } = useWindowDimensions();
   const dos = width >= 1000;
-  const lista = radar.filter((r) => f === 'todos' || r.estado === f);
+  const porEstado = radar.filter((r) => f === 'todos' || r.estado === f);
+  const lista = porEstado.filter((r) => fp === 'todas' || platRadar(r.plataforma) === fp);
+  const cuenta = (p: string) => porEstado.filter((r) => platRadar(r.plataforma) === p).length;
 
   const enCola = (id: string) => solicitudes.some((x) => x.tipo === 'radar' && x.destino?.radar_id === id && (x.estado === 'pendiente' || x.estado === 'procesando'));
   const convertir = async (r: Hallazgo) => {
@@ -59,12 +62,17 @@ export default function Radar() {
               ['todos', `Todos (${radar.length})`],
             ]}
           />
+          <Chips
+            valor={fp}
+            onCambio={setFp}
+            opciones={[['todas', `Todas las plataformas (${porEstado.length})`] as [string, string], ...PLATS_RADAR.map((p) => [p, `${p} (${cuenta(p)})`] as [string, string])]}
+          />
           {lista.map((r) => (
             <Card key={r.id} style={{ borderLeftWidth: 3, borderLeftColor: pilarColor[r.pilar as Pilar] ?? pilarColor.tendencias }}>
               <Fila entre wrap>
                 <Fila gap={6} wrap>
                   <Texto peso="bold">{r.referente || 'Hallazgo'}</Texto>
-                  {r.plataforma ? <Tag texto={r.plataforma} /> : null}
+                  <Tag texto={platRadar(r.plataforma)} color={plataformaColor[platRadar(r.plataforma)]} />
                   <Pill pilar={r.pilar} />
                   {r.vistas ? <Tag texto={r.vistas} /> : null}
                 </Fila>
@@ -96,7 +104,7 @@ export default function Radar() {
           <Card>
             <Titulo tam={18}>Pegar un hallazgo</Titulo>
             <Campo etiqueta="Quién" value={ref} onChangeText={setRef} placeholder="Ej: Nick DiGiovanni" />
-            <Chips valor={plat} onCambio={setPlat} opciones={PLATS.map((p) => [p, p] as [string, string])} />
+            <Chips valor={plat} onCambio={setPlat} opciones={PLATS_RADAR.map((p) => [p, p] as [string, string])} />
             <Campo etiqueta="Link" value={link} onChangeText={setLink} placeholder="https://" autoCapitalize="none" />
             <Campo etiqueta="¿Qué hizo o dijo?" value={resumen} onChangeText={setResumen} multiline placeholder="Ej: dice que para descongelar carne rápido hay que…" />
             <Boton

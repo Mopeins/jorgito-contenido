@@ -28,6 +28,9 @@ export const plataformaColor: Record<string, string> = {
   Facebook: '#1877F2',
   TikTok: '#111111',
   YouTube: '#D71920',
+  'YouTube largo': '#D71920',
+  'YouTube Shorts': '#E8590C',
+  Web: '#525252',
 };
 
 export const fonts = {

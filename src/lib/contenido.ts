@@ -46,6 +46,10 @@ export const estadoN = (k: string) => (ESTADOS.find((e) => e[0] === k) ?? ['', '
 
 export const FORMATOS = ['Reel / TikTok', 'YouTube largo', 'Short', 'Carrusel', 'Historia', 'Live'];
 export const PLATS = ['Instagram', 'Facebook', 'TikTok', 'YouTube'];
+/** Dónde puede salir un hallazgo del radar: separa Shorts de videos largos y suma la web. */
+export const PLATS_RADAR = ['Instagram', 'Facebook', 'TikTok', 'YouTube Shorts', 'YouTube largo', 'Web'];
+/** Hallazgos antiguos guardados solo como "YouTube" cuentan como video largo. */
+export const platRadar = (p?: string | null) => (p === 'YouTube' ? 'YouTube largo' : p || 'Web');
 
 export const TIPOS_PROPUESTA: Record<TipoPropuesta, { n: string; campo?: 'titulo' | 'gancho' | 'guion' | 'cta' }> = {
   titulo: { n: 'Título', campo: 'titulo' },
